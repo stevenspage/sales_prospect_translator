@@ -1,6 +1,36 @@
-# 销售前景翻译器
+# Sales Prospect and Translation
 
 一个自动化的销售前景搜索和翻译工具，能够搜索指定关键词的相关网站，提取内容并进行智能翻译，最终生成多种格式的报告。
+
+## 快速开始
+
+### 第一步：下载项目文件
+
+#### 方法一：使用命令行下载（推荐）
+
+```bash
+# 下载主程序文件
+curl -O https://raw.githubusercontent.com/stevenspage/sales_prospect_translator/main/sales_prospect_translator.py
+
+# 下载依赖文件
+curl -O https://raw.githubusercontent.com/stevenspage/sales_prospect_translator/main/requirements.txt
+```
+
+#### 方法二：从GitHub页面下载
+
+1. 访问 [GitHub仓库](https://github.com/stevenspage/sales_prospect_translator)
+2. 点击绿色的 "Code" 按钮
+3. 选择 "Download ZIP" 下载完整项目
+4. 解压后找到 `sales_prospect_translator.py` 文件
+
+#### 方法三：使用Git克隆（适合开发者）
+
+```bash
+git clone https://github.com/stevenspage/sales_prospect_translator.git
+cd sales_prospect_translator
+```
+
+**重要提示**：确保下载了 `sales_prospect_translator.py` 文件，这是程序的核心文件。
 
 ## 功能特性
 
@@ -13,7 +43,7 @@
 
 ## 快速开始
 
-### 第一步：安装依赖
+### 第二步：安装依赖
 
 ```bash
 pip install googlesearch-python newspaper3k fpdf python-docx trafilatura langdetect pandas openpyxl
@@ -25,7 +55,7 @@ pip install googlesearch-python newspaper3k fpdf python-docx trafilatura langdet
 pip install -r requirements.txt
 ```
 
-### 第二步：配置搜索关键词
+### 第三步：配置搜索关键词
 
 打开 `sales_prospect_translator.py` 文件，找到第5行，修改搜索关键词：
 
@@ -38,7 +68,7 @@ SEARCH_KEYWORD = "your_search_keyword_here"  # 修改为您的搜索关键词
 - `"distribuidor mexicano de equipos médicos"` - 墨西哥医疗设备分销商
 - `"importador brasileño de maquinaria industrial"` - 巴西工业机械进口商
 
-### 第三步：配置翻译API（可选）
+### 第四步：配置翻译API（可选）
 
 如果您需要翻译功能，需要配置智谱翻译API：
 
@@ -56,7 +86,7 @@ TRANSLATION_CONFIG = {
 
 **注意：** 如果不配置API密钥，程序将跳过翻译步骤，只进行搜索和内容提取。
 
-### 第四步：配置邮件发送（可选）
+### 第五步：配置邮件发送（可选）
 
 如果您需要邮件发送功能，需要配置QQ邮箱：
 
@@ -75,7 +105,7 @@ EMAIL_CONFIG = {
 
 **注意：** 如果不配置邮箱，程序将跳过邮件发送步骤。
 
-### 第五步：调整搜索参数（可选）
+### 第六步：调整搜索参数（可选）
 
 您可以根据需要调整搜索参数：
 
@@ -94,7 +124,7 @@ TEXT_TRUNCATE_CONFIG = {
 }
 ```
 
-### 第六步：运行程序
+### 第七步：运行程序
 
 配置完成后，运行程序：
 
