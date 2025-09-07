@@ -6,24 +6,14 @@
 
 ### 第一步：下载项目文件
 
-#### 方法一：使用命令行下载（推荐）
-
-```bash
-# 下载主程序文件
-curl -O https://raw.githubusercontent.com/stevenspage/sales_prospect_translator/main/sales_prospect_translator.py
-
-# 下载依赖文件
-curl -O https://raw.githubusercontent.com/stevenspage/sales_prospect_translator/main/requirements.txt
-```
-
-#### 方法二：从GitHub页面下载
+#### 方法一：从GitHub页面下载（推荐）
 
 1. 访问 [GitHub仓库](https://github.com/stevenspage/sales_prospect_translator)
 2. 点击绿色的 "Code" 按钮
 3. 选择 "Download ZIP" 下载完整项目
 4. 解压后找到 `sales_prospect_translator.py` 文件
 
-#### 方法三：使用Git克隆（适合开发者）
+#### 方法二：使用Git克隆（适合开发者）
 
 ```bash
 git clone https://github.com/stevenspage/sales_prospect_translator.git
