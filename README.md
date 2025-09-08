@@ -1,6 +1,15 @@
 # Sales Prospect and Translation
 
-一个自动化的销售前景搜索和翻译工具，能够搜索指定关键词的相关网站，提取内容并进行智能翻译，最终生成多种格式的报告。
+一个自动化的客户信息搜索和翻译工具，能够搜索指定关键词的相关网站，提取内容并进行智能翻译，最终生成多种格式的报告。
+
+## 功能特性
+
+- 🔍 **智能搜索**: 使用Google搜索API获取相关网站（默认300个结果）
+- 🌐 **多语言支持**: 自动检测搜索语言，支持多种语言搜索
+- 📄 **内容提取**: 使用多种库组合提取网页正文内容
+- 🤖 **智能翻译**: 集成智谱翻译API，支持批量并发翻译
+- 📊 **多格式输出**: 支持Word、HTML、Excel等多种格式
+- 📧 **邮件发送**: 支持通过QQ邮箱发送报告
 
 ## 快速开始
 
@@ -22,18 +31,27 @@ cd sales_prospect_translator
 
 **重要提示**：确保下载了 `sales_prospect_translator.py` 文件，这是程序的核心文件。
 
-## 功能特性
+### 第二步：下载Python
 
-- 🔍 **智能搜索**: 使用Google搜索API获取相关网站（默认300个结果）
-- 🌐 **多语言支持**: 自动检测搜索语言，支持多种语言搜索
-- 📄 **内容提取**: 使用多种库组合提取网页正文内容
-- 🤖 **智能翻译**: 集成智谱翻译API，支持批量并发翻译
-- 📊 **多格式输出**: 支持Word、HTML、Excel等多种格式
-- 📧 **邮件发送**: 支持通过QQ邮箱发送报告
+如果您的系统还没有安装Python，请先下载并安装Python：
 
-## 快速开始
+#### Windows系统
+1. 访问 [Python官网](https://www.python.org/downloads/)
+2. 下载最新版本的Python（推荐Python 3.8或更高版本）
+3. 运行安装程序，**务必勾选"Add Python to PATH"**
+4. 其他设置请勾选默认即可，安装结束后无需再管Python
 
-### 第二步：安装依赖
+#### macOS系统
+```bash
+# 使用Homebrew安装（推荐）
+brew install python
+
+# 或者从官网下载安装包
+# 访问 https://www.python.org/downloads/
+```
+
+
+### 第三步：安装依赖
 
 ```bash
 pip install googlesearch-python newspaper3k fpdf python-docx trafilatura langdetect pandas openpyxl
@@ -45,9 +63,9 @@ pip install googlesearch-python newspaper3k fpdf python-docx trafilatura langdet
 pip install -r requirements.txt
 ```
 
-### 第三步：配置搜索关键词
+### 第四步：配置搜索关键词
 
-打开 `sales_prospect_translator.py` 文件，找到第5行，修改搜索关键词：
+用记事本打开 `sales_prospect_translator.py` 文件，找到第5行，修改搜索关键词：
 
 ```python
 SEARCH_KEYWORD = "your_search_keyword_here"  # 修改为您的搜索关键词
@@ -58,7 +76,7 @@ SEARCH_KEYWORD = "your_search_keyword_here"  # 修改为您的搜索关键词
 - `"distribuidor mexicano de equipos médicos"` - 墨西哥医疗设备分销商
 - `"importador brasileño de maquinaria industrial"` - 巴西工业机械进口商
 
-### 第四步：配置翻译API（可选）
+### 第五步：配置翻译API（可选）
 
 如果您需要翻译功能，需要配置智谱翻译API：
 
@@ -76,12 +94,13 @@ TRANSLATION_CONFIG = {
 
 **注意：** 如果不配置API密钥，程序将跳过翻译步骤，只进行搜索和内容提取。
 
-### 第五步：配置邮件发送（可选）
+### 第六步：配置邮件发送（可选）
 
 如果您需要邮件发送功能，需要配置QQ邮箱：
 
-1. 在QQ邮箱设置中开启SMTP服务
-2. 获取授权码（不是QQ密码）
+1. 获取授权码（不是邮箱密码）
+   - 详细教程：[QQ邮箱获取授权码教程](https://service.mail.qq.com/detail/0/75)
+   - 其他主流邮箱如Gmail，Outlook均支持通过授权码发送邮件（具体请询问AI）
 3. 在 `sales_prospect_translator.py` 文件中找到第24-27行，填入邮箱信息：
 
 ```python
@@ -95,7 +114,7 @@ EMAIL_CONFIG = {
 
 **注意：** 如果不配置邮箱，程序将跳过邮件发送步骤。
 
-### 第六步：调整搜索参数（可选）
+### 第七步：调整搜索参数（可选）
 
 您可以根据需要调整搜索参数：
 
@@ -114,7 +133,7 @@ TEXT_TRUNCATE_CONFIG = {
 }
 ```
 
-### 第七步：运行程序
+### 第八步：运行程序
 
 配置完成后，运行程序：
 
