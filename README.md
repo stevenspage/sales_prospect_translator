@@ -51,7 +51,7 @@ brew install python
 ```
 
 
-### 第三步：安装依赖
+### 第三步：安装依赖（请询问AI如何安装）
 
 ```bash
 pip install googlesearch-python newspaper3k fpdf python-docx trafilatura langdetect pandas openpyxl
