@@ -15,21 +15,13 @@
 
 ### 第一步：下载项目文件
 
-#### 方法一：从GitHub页面下载（推荐）
+#### 从GitHub页面下载
 
 1. 访问 [GitHub仓库](https://github.com/stevenspage/sales_prospect_translator)
 2. 点击绿色的 "Code" 按钮
 3. 选择 "Download ZIP" 下载完整项目
 4. 解压后找到 `sales_prospect_translator.py` 文件
 
-#### 方法二：使用Git克隆（适合开发者）
-
-```bash
-git clone https://github.com/stevenspage/sales_prospect_translator.git
-cd sales_prospect_translator
-```
-
-**重要提示**：确保下载了 `sales_prospect_translator.py` 文件，这是程序的核心文件。
 
 ### 第二步：下载Python
 
@@ -41,14 +33,6 @@ cd sales_prospect_translator
 3. 运行安装程序，**务必勾选"Add Python to PATH"**
 4. 其他设置请勾选默认即可，安装结束后无需再管Python
 
-#### macOS系统
-```bash
-# 使用Homebrew安装（推荐）
-brew install python
-
-# 或者从官网下载安装包
-# 访问 https://www.python.org/downloads/
-```
 
 
 ### 第三步：安装依赖（请询问AI如何安装）
@@ -69,7 +53,29 @@ pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langde
 
 > 说明：程序会自动读取 Excel 配置；不再推荐直接改 Python 源码中的常量。
 
-### 第五步：配置翻译API（可选）
+### 第五步：双击运行py脚本
+
+配置完成后，您可以通过以下方式运行程序：
+
+#### 方法一：双击运行（推荐）
+1. 在文件管理器中找到 `sales_prospect_translator.py` 文件
+2. 双击该文件即可运行程序
+3. 程序会自动读取 `search_config.xlsx` 中的配置
+
+#### 方法二：命令行运行
+
+**Windows系统：**
+1. 按 `Win + R` 键，输入 `cmd`，按回车
+2. 或者点击"开始"按钮，搜索"cmd"并打开
+3. 使用 `cd` 命令切换到项目目录：
+ 
+4. 运行程序：
+   ```cmd
+   python sales_prospect_translator.py
+   ```
+
+
+### 第六步：配置翻译API（可选）
 
 如果您需要翻译功能，需要配置智谱翻译API：
 
@@ -79,7 +85,7 @@ pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langde
 
 **注意：** 如果不配置API密钥，程序将跳过翻译步骤，只进行搜索和内容提取。
 
-### 第六步：配置邮件发送（可选）
+### 第七步：配置邮件发送（可选）
 
 如果您需要邮件发送功能，需要配置QQ邮箱：
 
@@ -90,7 +96,7 @@ pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langde
 
 **注意：** 如果不配置邮箱，程序将跳过邮件发送步骤。
 
-### 第七步：调整搜索参数（可选）
+### 第八步：调整搜索参数（可选）
 
 您可以根据需要调整搜索参数：
 
@@ -109,22 +115,7 @@ TEXT_TRUNCATE_CONFIG = {
 }
 ```
 
-### 第八步：运行程序
-
-配置完成后，运行程序：
-
-```bash
-python sales_prospect_translator.py
-```
-
-程序将自动执行以下步骤：
-1. 🔍 搜索指定关键词的相关网站
-2. 📄 提取每个网站的标题、摘要和正文内容
-3. 🤖 使用AI翻译所有内容（如果启用）
-4. 📊 生成Word、HTML、Excel格式的报告
-5. 📧 发送邮件报告（如果启用）
-
-## 输出文件
+### 第九步：查看运行结果
 
 程序运行完成后，会在当前目录生成以下文件：
 
