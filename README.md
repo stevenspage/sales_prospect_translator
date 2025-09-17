@@ -1,6 +1,6 @@
-# 销售前景翻译器
+# Sales Prospect and Translation
 
-一个自动化的销售前景搜索和翻译工具，能够搜索指定关键词的相关网站，提取内容并进行智能翻译，最终生成多种格式的报告。
+一个自动化的客户信息搜索和翻译工具，能够搜索指定关键词的相关网站，提取内容并进行智能翻译，最终生成多种格式的报告。
 
 ## 功能特性
 
@@ -13,69 +13,84 @@
 
 ## 快速开始
 
-### 第一步：安装依赖
+### 第一步：下载项目文件
+
+#### 方法一：从GitHub页面下载（推荐）
+
+1. 访问 [GitHub仓库](https://github.com/stevenspage/sales_prospect_translator)
+2. 点击绿色的 "Code" 按钮
+3. 选择 "Download ZIP" 下载完整项目
+4. 解压后找到 `sales_prospect_translator.py` 文件
+
+#### 方法二：使用Git克隆（适合开发者）
 
 ```bash
-pip install googlesearch-python newspaper3k fpdf python-docx trafilatura langdetect pandas openpyxl
+git clone https://github.com/stevenspage/sales_prospect_translator.git
+cd sales_prospect_translator
 ```
 
-或者使用requirements.txt：
+**重要提示**：确保下载了 `sales_prospect_translator.py` 文件，这是程序的核心文件。
+
+### 第二步：下载Python
+
+如果您的系统还没有安装Python，请先下载并安装Python：
+
+#### Windows系统
+1. 访问 [Python官网](https://www.python.org/downloads/)
+2. 下载最新版本的Python（推荐Python 3.8或更高版本）
+3. 运行安装程序，**务必勾选"Add Python to PATH"**
+4. 其他设置请勾选默认即可，安装结束后无需再管Python
+
+#### macOS系统
+```bash
+# 使用Homebrew安装（推荐）
+brew install python
+
+# 或者从官网下载安装包
+# 访问 https://www.python.org/downloads/
+```
+
+
+### 第三步：安装依赖（请询问AI如何安装）
 
 ```bash
-pip install -r requirements.txt
+pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langdetect pandas openpyxl beautifulsoup4 requests google-search-results
 ```
 
-### 第二步：配置搜索关键词
+### 第四步：填写Google搜索配置（关键词、API、邮箱等）
 
-打开 `sales_prospect_translator.py` 文件，找到第5行，修改搜索关键词：
+1. 打开并填写 `search_config.xlsx`（在本项目中下载）：
+- 在"配置模板"工作表：填写：API_KEY、GOOGLE_SEARCH_ENGINE_ID、搜索关键词等
 
-```python
-SEARCH_KEYWORD = "your_search_keyword_here"  # 修改为您的搜索关键词
-```
+#### Google Custom Search API Key 申请教程
+- **详细教程**: [Google Custom Search API 配置指南](https://yb.tencent.com/s/Rbc5eDI2GCTH)
+- 按照教程获取 `API_KEY` 和 `GOOGLE_SEARCH_ENGINE_ID`
+- 在 Excel 配置文件中填入相应的值
 
-**示例：**
-- `"importador argentino de máquinas de café"` - 阿根廷咖啡机进口商
-- `"distribuidor mexicano de equipos médicos"` - 墨西哥医疗设备分销商
-- `"importador brasileño de maquinaria industrial"` - 巴西工业机械进口商
+> 说明：程序会自动读取 Excel 配置；不再推荐直接改 Python 源码中的常量。
 
-### 第三步：配置翻译API（可选）
+### 第五步：配置翻译API（可选）
 
 如果您需要翻译功能，需要配置智谱翻译API：
 
 1. 访问 [智谱AI开放平台](https://open.bigmodel.cn/) 注册账号
 2. 获取API密钥
-3. 在 `sales_prospect_translator.py` 文件中找到第34行，填入API密钥：
-
-```python
-TRANSLATION_CONFIG = {
-    'api_key': 'your_api_key_here',  # 替换为您的API密钥
-    'enable_translation': True,      # 启用翻译功能
-    # ... 其他配置
-}
-```
+3. 在 Excel 的“配置模板”工作表中填写 `translation_api_key` 并将“是否启用翻译”设为 True。
 
 **注意：** 如果不配置API密钥，程序将跳过翻译步骤，只进行搜索和内容提取。
 
-### 第四步：配置邮件发送（可选）
+### 第六步：配置邮件发送（可选）
 
 如果您需要邮件发送功能，需要配置QQ邮箱：
 
-1. 在QQ邮箱设置中开启SMTP服务
-2. 获取授权码（不是QQ密码）
-3. 在 `sales_prospect_translator.py` 文件中找到第24-27行，填入邮箱信息：
-
-```python
-EMAIL_CONFIG = {
-    'sender_email': 'your_email@qq.com',        # 您的QQ邮箱
-    'sender_password': 'your_auth_code',        # QQ邮箱授权码
-    'recipient_email': 'recipient@example.com', # 收件人邮箱
-    'enable_email': True                        # 启用邮件发送
-}
-```
+1. 获取授权码（不是邮箱密码）
+   - 详细教程：[QQ邮箱获取授权码教程](https://service.mail.qq.com/detail/0/75)
+   - 其他主流邮箱如Gmail，Outlook均支持通过授权码发送邮件（具体请询问AI）
+3. 在 Excel 的“配置模板”工作表里填写 `sender_email`、`sender_auth_code`、`recipient_email`，并将“是否启用邮件”设为 True。
 
 **注意：** 如果不配置邮箱，程序将跳过邮件发送步骤。
 
-### 第五步：调整搜索参数（可选）
+### 第七步：调整搜索参数（可选）
 
 您可以根据需要调整搜索参数：
 
@@ -94,7 +109,7 @@ TEXT_TRUNCATE_CONFIG = {
 }
 ```
 
-### 第六步：运行程序
+### 第八步：运行程序
 
 配置完成后，运行程序：
 
