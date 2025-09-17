@@ -89,7 +89,6 @@ dmypy.json
 *.pdf
 *.docx
 *.html
-*.xlsx
 results.*
 
 # IDE文件
