@@ -1,4 +1,4 @@
-# Sales Prospect and Translation
+# Sales Prospector and Translator
 
 一个自动化的客户信息搜索和翻译工具，能够搜索指定关键词的相关网站，提取内容并进行智能翻译，最终生成多种格式的报告。
 
@@ -13,66 +13,147 @@
 
 ## 快速开始
 
-### 第一步：下载项目文件
+### 📥 第一步：下载项目文件
 
-#### 从GitHub页面下载
+<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
 
-1. 访问 [GitHub仓库](https://github.com/stevenspage/sales_prospect_translator)
-2. 点击绿色的 "Code" 按钮
-3. 选择 "Download ZIP" 下载完整项目
-4. 解压后找到 `sales_prospect_translator.py` 文件
+#### 🎯 从GitHub页面下载（推荐）
 
+1. 🟢 点击上方绿色的 "Code" 按钮（需要在电脑上打开）
+2. 📦 选择 "Download ZIP" 下载完整项目
+3. 📁 解压后找到 `sales_prospector_translator.py` 文件
 
-### 第二步：下载Python
+> 💡 **提示**: 确保下载了 `sales_prospector_translator.py` 文件，这是程序的核心文件
+
+</div>
+
+### 🐍 第二步：下载Python
+
+<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
 
 如果您的系统还没有安装Python，请先下载并安装Python：
 
 #### Windows系统
-1. 访问 [Python官网](https://www.python.org/downloads/)
-2. 下载最新版本的Python（推荐Python 3.8或更高版本）
-3. 运行安装程序，**务必勾选"Add Python to PATH"**
-4. 其他设置请勾选默认即可，安装结束后无需再管Python
+
+1. 🌐 访问 [Python官网](https://www.python.org/downloads/)
+2. ⬇️ 下载最新版本的Python（推荐Python 3.8或更高版本）
+3. 🔧 运行安装程序，**务必勾选"Add Python to PATH"**
+4. ✅ 其他设置请勾选默认即可，安装结束后无需再管Python
+
+> ⚠️ **重要**: 必须勾选"Add Python to PATH"，否则无法在命令行中使用Python
+
+</div>
 
 
 
-### 第三步：安装依赖（请询问AI如何安装）
+### 📦 第三步：安装依赖
+
+<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
+
+#### 一键安装命令（可以把下列代码发给AI，获取安装方法）
 
 ```bash
 pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langdetect pandas openpyxl beautifulsoup4 requests google-search-results
 ```
 
-### 第四步：填写Google搜索配置（关键词、API、邮箱等）
 
-1. 打开并填写 `search_config.xlsx`（在本项目中下载）：
-- 在"配置模板"工作表：填写：API_KEY、GOOGLE_SEARCH_ENGINE_ID、搜索关键词等
+</div>
 
-#### Google Custom Search API Key 申请教程
-- **详细教程**: [Google Custom Search API 配置指南](https://yb.tencent.com/s/Rbc5eDI2GCTH)
-- 按照教程获取 `API_KEY` 和 `GOOGLE_SEARCH_ENGINE_ID`
-- 在 Excel 配置文件中填入相应的值
+### ⚙️ 第四步：填写Google搜索配置（API、搜索关键词、邮箱等）
 
-> 说明：程序会自动读取 Excel 配置；不再推荐直接改 Python 源码中的常量。
+<div style="border: 2px solid #9C27B0; border-radius: 10px; padding: 20px; background-color: #faf5ff; margin: 15px 0;">
 
-### 第五步：双击运行py脚本
+#### 📋 配置步骤
 
-配置完成后，您可以通过以下方式运行程序：
+1. 📊 打开并填写 `search_config.xlsx`（在本项目中下载）
+2. 📝 在"配置模板"工作表：填写：API_KEY、搜索关键词等
 
-#### 方法一：双击运行（推荐）
-1. 在文件管理器中找到 `sales_prospect_translator.py` 文件
-2. 双击该文件即可运行程序
-3. 程序会自动读取 `search_config.xlsx` 中的配置
+> 💡 **说明**: 程序会自动读取 Excel 配置；不再推荐直接改 Python 源码中的常量
 
-#### 方法二：命令行运行
+</div>
 
-**Windows系统：**
-1. 按 `Win + R` 键，输入 `cmd`，按回车
-2. 或者点击"开始"按钮，搜索"cmd"并打开
-3. 使用 `cd` 命令切换到项目目录：
- 
-4. 运行程序：
-   ```cmd
-   python sales_prospect_translator.py
-   ```
+#### 🔥 搜索 API 介绍
+
+由于Google搜索服务需要调用API接口，需要先申请 API KEY。
+介绍两种方法，推荐使用 SERP API Key，能够提供Google搜索服务，流程最简单。
+
+<div style="display: flex; gap: 20px; margin: 20px 0;">
+
+<div style="flex: 1; border: 2px solid #4CAF50; border-radius: 10px; padding: 20px; background-color: #f8fff8;">
+
+### 🔥 SERP API（推荐）
+
+**申请步骤：**
+1. 🌐 访问 [SerpApi官网](https://serpapi.com/) 注册账号
+2. 🔑 登录后进入 [Dashboard](https://serpapi.com/manage-api-key)
+3. 📋 复制 API Key
+4. ⚙️ 在 search_config.xlsx 中"搜索接口"选择 `serp_api`
+5. 💾 在 search_config.xlsx 中"API密钥"填入刚才获取的 API KEY
+
+**✅ 优势：**
+- 🚀 申请流程最简单
+- 💰 每个月2500次免费搜索额度
+- 🔢 不限制每个关键词搜索结果数量
+
+</div>
+
+<div style="flex: 1; border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff;">
+
+### 🔧 Google 官方 API（备选）
+
+**申请步骤：**
+1. 📖 **详细教程**: [Google Custom Search API 配置指南](https://yb.tencent.com/s/Rbc5eDI2GCTH)
+2. 🔧 按照教程获取 `API_KEY` 和 `GOOGLE_SEARCH_ENGINE_ID`
+3. 📝 在 Excel 配置文件中填入相应的值
+
+**✅ 优势：**
+- 🏢 Google官方 API
+- 💰 每天100次免费搜索额度
+
+**❌ 劣势：**
+- ⚙️ 申请 API KEY 流程略复杂
+- 🔢 每个关键词只能获取前100个搜索结果
+
+</div>
+
+</div>
+
+
+### ▶️ 第五步：双击运行py脚本
+
+#### 🎯 方法一：双击运行（推荐）
+
+<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
+
+
+1. 📁 找到 `sales_prospector_translator.py` 文件
+2. 🖱️ 双击该文件即可运行程序
+3. ⚙️ 程序会自动读取 `search_config.xlsx` 中的配置（如果没有会自动创建）
+
+> 🚀 **最简单的方式**：双击即可运行，无需命令行操作
+
+</div>
+
+#### 🔧 方法二：在VS CODE 或者 Cursor 中运行（适合开发者）
+
+
+```bash
+在代码编辑器中运行
+```
+
+#### 🎬 程序运行流程
+
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+
+1. 🔍 **搜索阶段** - 搜索指定关键词的相关网站
+2. 📄 **提取阶段** - 提取每个网站的标题、摘要和正文内容
+3. 🤖 **翻译阶段** - 使用AI翻译所有内容（如果启用）
+4. 📊 **生成阶段** - 生成Word、HTML、Excel格式的报告
+5. 📧 **发送阶段** - 发送邮件报告（如果启用）
+
+</div>
+
+
 
 
 ### 第六步：配置翻译API（可选）

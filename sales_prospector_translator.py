@@ -26,7 +26,7 @@ EXCLUDE_TERMS = ''
 # SEARCH_METHOD = 'google_custom_search_api'  # 使用Google Custom Search API（推荐）
 # SEARCH_METHOD = 'googlesearch'              # 使用googlesearch-python库（已被Google屏蔽）
 # SEARCH_METHOD = 'serp_api'                  # 使用Serp API（第三方搜索API）
-SEARCH_METHOD = 'google_custom_search_api'
+SEARCH_METHOD = 'serp_api'
 
 # ==================== 2. 搜索参数配置组 ====================
 # 搜索配置
@@ -283,7 +283,7 @@ def create_config_template(filename):
             config_values[3]   # EXCLUDE_TERMS
         ])
         config_descriptions.extend([
-            'google_custom_search_api（推荐）、googlesearch（目前暂时无法使用）或serp_api（第三方Google搜索API，在https://serpapi.com申请）',
+            'google官方api、googlesearch（目前暂时无法使用）或serp_api（第三方Google搜索API，在https://serpapi.com申请）',
             'Google Custom Search API密钥或Serp API密钥',
             '搜索接口为google_custom_search_api时必填，在https://programmablesearchengine.google.com/ 获取',
             '用空格分隔多个搜索关键词',
