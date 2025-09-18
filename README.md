@@ -11,245 +11,6 @@
 - 📊 **多格式输出**: 支持Word、HTML、Excel等多种格式
 - 📧 **邮件发送**: 支持通过QQ邮箱发送报告
 
-## 快速开始
-
-### 📥 第一步：下载项目文件
-
-<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
-
-#### 🎯 从GitHub页面下载（推荐）
-
-1. 🟢 点击上方绿色的 "Code" 按钮（需要在电脑上打开）
-2. 📦 选择 "Download ZIP" 下载完整项目
-3. 📁 解压后找到 `sales_prospector_translator.py` 文件
-
-> 💡 **提示**: 确保下载了 `sales_prospector_translator.py` 文件，这是程序的核心文件
-
-</div>
-
-### 🐍 第二步：下载Python
-
-<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
-
-如果您的系统还没有安装Python，请先下载并安装Python：
-
-#### Windows系统
-
-1. 🌐 访问 [Python官网](https://www.python.org/downloads/)
-2. ⬇️ 下载最新版本的Python（推荐Python 3.8或更高版本）
-3. 🔧 运行安装程序，**务必勾选"Add Python to PATH"**
-4. ✅ 其他设置请勾选默认即可，安装结束后无需再管Python
-
-> ⚠️ **重要**: 必须勾选"Add Python to PATH"，否则无法在命令行中使用Python
-
-</div>
-
-
-
-### 📦 第三步：安装依赖
-
-<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
-
-#### 一键安装命令（可以把下列代码发给AI，获取安装方法）
-
-```bash
-pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langdetect pandas openpyxl beautifulsoup4 requests google-search-results
-```
-
-
-</div>
-
-### ⚙️ 第四步：填写Google搜索配置（API、搜索关键词、邮箱等）
-
-<div style="border: 2px solid #9C27B0; border-radius: 10px; padding: 20px; background-color: #faf5ff; margin: 15px 0;">
-
-#### 📋 配置步骤
-
-1. 📊 打开并填写 `search_config.xlsx`（在本项目中下载）
-2. 📝 在"配置模板"工作表：填写：API_KEY、搜索关键词等
-
-> 💡 **说明**: 程序会自动读取 Excel 配置；不再推荐直接改 Python 源码中的常量
-
-</div>
-
-#### 🔥 搜索 API 介绍
-
-由于Google搜索服务需要调用API接口，需要先申请 API KEY。
-介绍两种方法，推荐使用 SERP API Key，能够提供Google搜索服务，流程最简单。
-
-<div style="display: flex; gap: 20px; margin: 20px 0;">
-
-<div style="flex: 1; border: 2px solid #4CAF50; border-radius: 10px; padding: 20px; background-color: #f8fff8;">
-
-### 🔥 SERP API（推荐）
-
-**申请步骤：**
-1. 🌐 访问 [SerpApi官网](https://serpapi.com/) 注册账号
-2. 🔑 登录后进入 [Dashboard](https://serpapi.com/manage-api-key)
-3. 📋 复制 API Key
-4. ⚙️ 在 search_config.xlsx 中"搜索接口"选择 `serp_api`
-5. 💾 在 search_config.xlsx 中"API密钥"填入刚才获取的 API KEY
-
-**✅ 优势：**
-- 🚀 申请流程最简单
-- 💰 每个月2500次免费搜索额度
-- 🔢 不限制每个关键词搜索结果数量
-
-</div>
-
-<div style="flex: 1; border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff;">
-
-### 🔧 Google 官方 API（备选）
-
-**申请步骤：**
-1. 📖 **详细教程**: [Google Custom Search API 配置指南](https://yb.tencent.com/s/Rbc5eDI2GCTH)
-2. 🔧 按照教程获取 `API_KEY` 和 `GOOGLE_SEARCH_ENGINE_ID`
-3. 📝 在 Excel 配置文件中填入相应的值
-
-**✅ 优势：**
-- 🏢 Google官方 API
-- 💰 每天100次免费搜索额度
-
-**❌ 劣势：**
-- ⚙️ 申请 API KEY 流程略复杂
-- 🔢 每个关键词只能获取前100个搜索结果
-
-</div>
-
-</div>
-
-
-### ▶️ 第五步：双击运行py脚本
-
-#### 🎯 方法一：双击运行（推荐）
-
-<div style="border: 2px solid #2196F3; border-radius: 10px; padding: 20px; background-color: #f0f8ff; margin: 15px 0;">
-
-
-1. 📁 找到 `sales_prospector_translator.py` 文件
-2. 🖱️ 双击该文件即可运行程序
-3. ⚙️ 程序会自动读取 `search_config.xlsx` 中的配置（如果没有会自动创建）
-
-> 🚀 **最简单的方式**：双击即可运行，无需命令行操作
-
-</div>
-
-#### 🔧 方法二：在VS CODE 或者 Cursor 中运行（适合开发者）
-
-
-```bash
-在代码编辑器中运行
-```
-
-#### 🎬 程序运行流程
-
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
-
-1. 🔍 **搜索阶段** - 搜索指定关键词的相关网站
-2. 📄 **提取阶段** - 提取每个网站的标题、摘要和正文内容
-3. 🤖 **翻译阶段** - 使用AI翻译所有内容（如果启用）
-4. 📊 **生成阶段** - 生成Word、HTML、Excel格式的报告
-5. 📧 **发送阶段** - 发送邮件报告（如果启用）
-
-</div>
-
-
-
-
-### 第六步：配置翻译API（可选）
-
-如果您需要翻译功能，需要配置智谱翻译API：
-
-1. 访问 [智谱AI开放平台](https://open.bigmodel.cn/) 注册账号
-2. 获取API密钥
-3. 在 Excel 的“配置模板”工作表中填写 `translation_api_key` 并将“是否启用翻译”设为 True。
-
-**注意：** 如果不配置API密钥，程序将跳过翻译步骤，只进行搜索和内容提取。
-
-### 第七步：配置邮件发送（可选）
-
-如果您需要邮件发送功能，需要配置QQ邮箱：
-
-1. 获取授权码（不是邮箱密码）
-   - 详细教程：[QQ邮箱获取授权码教程](https://service.mail.qq.com/detail/0/75)
-   - 其他主流邮箱如Gmail，Outlook均支持通过授权码发送邮件（具体请询问AI）
-3. 在 Excel 的“配置模板”工作表里填写 `sender_email`、`sender_auth_code`、`recipient_email`，并将“是否启用邮件”设为 True。
-
-**注意：** 如果不配置邮箱，程序将跳过邮件发送步骤。
-
-### 第八步：调整搜索参数（可选）
-
-您可以根据需要调整搜索参数：
-
-```python
-# 搜索结果数量（默认300个）
-SEARCH_CONFIG = {
-    'num_results': 300,  # 可以调整为10-500之间的数字
-    'sleep_interval_min': 1,  # 最小请求间隔（秒）
-    'sleep_interval_max': 2   # 最大请求间隔（秒）
-}
-
-# 正文截取长度（默认500字符）
-TEXT_TRUNCATE_CONFIG = {
-    'max_chars': 500,  # 可以调整为100-2000之间的数字
-    'enable_truncate': True
-}
-```
-
-### 第九步：查看运行结果
-
-程序运行完成后，会在当前目录生成以下文件：
-
-- `{搜索关键词}.docx` - **Word格式报告**，包含超链接，适合阅读和打印
-- `{搜索关键词}.html` - **HTML格式报告**，适合在浏览器中查看
-- `{搜索关键词}.xlsx` - **Excel格式报告**，适合数据分析和处理
-
-**文件命名示例：**
-- 搜索关键词：`"importador argentino de máquinas de café"`
-- 生成文件：`importador_argentino_de_máquinas_de_café.docx`
-
-## 详细配置说明
-
-### 搜索配置
-```python
-SEARCH_KEYWORD = "your_search_keyword"  # 搜索关键词
-SEARCH_CONFIG = {
-    'num_results': 300,           # 搜索结果数量（10-500）
-    'sleep_interval_min': 1,      # 最小请求间隔（秒）
-    'sleep_interval_max': 2       # 最大请求间隔（秒）
-}
-```
-
-### 翻译配置
-```python
-TRANSLATION_CONFIG = {
-    'api_key': 'your_api_key',           # 智谱翻译API密钥
-    'enable_translation': True,          # 是否启用翻译功能
-    'translate_content': True,           # 是否翻译正文内容
-    'translate_summary': True,           # 是否翻译摘要
-    'max_workers': 10,                   # 并发翻译线程数（建议3-10）
-    'request_delay': 0.5                 # 请求间隔（秒）
-}
-```
-
-### 邮件配置
-```python
-EMAIL_CONFIG = {
-    'sender_email': 'your_email@qq.com',     # 发送方QQ邮箱
-    'sender_password': 'your_auth_code',     # QQ邮箱授权码
-    'recipient_email': 'recipient@example.com', # 收件人邮箱
-    'enable_email': False                    # 是否启用邮件发送
-}
-```
-
-### 内容截取配置
-```python
-TEXT_TRUNCATE_CONFIG = {
-    'max_chars': 500,        # 最大字符数（100-2000）
-    'enable_truncate': True  # 是否启用正文截取
-}
-```
-
 ## 使用场景示例
 
 ### 场景1：寻找咖啡机进口商
@@ -270,98 +31,176 @@ SEARCH_KEYWORD = "importador brasileño de maquinaria industrial"
 # 搜索巴西的工业机械进口商
 ```
 
-## 注意事项
+---
 
-### ⚠️ 重要提醒
-1. **API密钥安全**: 请勿将包含真实API密钥的代码上传到公共仓库
-2. **QQ邮箱授权码**: 需要在QQ邮箱设置中开启SMTP服务并获取授权码（不是QQ密码）
-3. **API限制**: 智谱翻译API可能有请求频率限制，建议适当调整并发数
-4. **网络连接**: 程序需要稳定的网络连接进行搜索和翻译
+## 快速开始
 
-### 💡 使用建议
-1. **首次使用**: 建议先设置较少的搜索结果数量（如10-50个）进行测试
-2. **翻译功能**: 如果不需要翻译，可以设置 `enable_translation: False` 提高运行速度
-3. **邮件功能**: 如果不需要邮件发送，可以设置 `enable_email: False`
-4. **搜索关键词**: 使用具体、准确的关键词可以获得更好的搜索结果
+> 🚀 **5分钟快速上手** - 从下载到运行，只需5个简单步骤
 
-## 故障排除
+---
 
-### 常见问题
+### ✨ 第1️⃣步：下载项目文件
 
-#### 1. 搜索失败
-**问题**: 程序无法获取搜索结果
-**解决方案**:
-- 检查网络连接是否正常
-- 确认搜索关键词格式正确
-- 尝试减少搜索结果数量
-- 检查是否被Google限制访问
+#### 🎯 从GitHub页面下载（推荐）
 
-#### 2. 翻译失败
-**问题**: 翻译功能无法正常工作
-**解决方案**:
-- 检查API密钥是否正确
-- 确认API密钥是否还有余额
-- 检查网络连接
-- 尝试减少并发翻译线程数
+1. 🟢 点击上方绿色的 "Code" 按钮（需要在电脑上打开）
+2. 📦 选择 "Download ZIP" 下载完整项目
+3. 📁 解压后找到 `sales_prospector_translator.py` 文件
 
-#### 3. 邮件发送失败
-**问题**: 无法发送邮件
-**解决方案**:
-- 检查QQ邮箱授权码是否正确（不是QQ密码）
-- 确认已开启SMTP服务
-- 检查收件人邮箱地址格式
-- 确认网络连接正常
+> 💡 **提示**: 确保下载了 `sales_prospector_translator.py` 文件，这是程序的核心文件
 
-#### 4. 内容提取失败
-**问题**: 无法提取网页内容
-**解决方案**:
-- 某些网站可能有反爬虫机制，这是正常现象
-- 程序会自动尝试多种提取方法
-- 可以忽略部分失败的结果
+---
 
-### 依赖安装问题
+### ✨ 第2️⃣步：下载Python
 
-如果遇到依赖安装问题，可以尝试：
+<details>
+<summary>🐍 点击查看 Python 安装步骤</summary>
+
+如果您的系统还没有安装Python，请先下载并安装Python：
+
+1. 🌐 访问 [Python官网](https://www.python.org/downloads/)
+2. ⬇️ 下载最新版本的Python（推荐Python 3.8或更高版本）
+3. 🔧 运行安装程序，**务必勾选"Add Python to PATH"**
+4. ✅ 其他设置请勾选默认即可，安装结束后无需再管Python
+
+> ⚠️ **重要**: 必须勾选"Add Python to PATH"，否则无法在命令行中使用Python
+
+</details>
+
+---
+
+### ✨ 第3️⃣步：安装依赖（必须，否则程序无法运行）
+
+#### 一键安装命令（可以把下列代码发给AI，获取安装方法）
 
 ```bash
-# 升级pip
-pip install --upgrade pip
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 如果仍有问题，尝试逐个安装
-pip install googlesearch-python
-pip install newspaper3k
-pip install fpdf2
-pip install python-docx
-pip install trafilatura
-pip install langdetect
-pip install pandas
-pip install openpyxl
-pip install requests
-pip install beautifulsoup4
+pip install googlesearch-python newspaper3k fpdf2 python-docx trafilatura langdetect pandas openpyxl beautifulsoup4 requests google-search-results
 ```
 
-### 性能优化建议
+---
 
-1. **减少搜索结果数量**: 如果不需要太多结果，可以减少 `num_results` 值
-2. **关闭翻译功能**: 如果不需要翻译，设置 `enable_translation: False`
-3. **调整并发数**: 根据网络情况调整 `max_workers` 值
-4. **增加请求间隔**: 如果遇到限流，可以增加 `request_delay` 值
+### ✨ 第4️⃣步：填写Google搜索配置（API、搜索关键词、邮箱等）
 
-## 更新日志
+#### 📋 配置步骤
 
-### v1.0.0
-- 初始版本发布
-- 支持Google搜索和内容提取
-- 集成智谱翻译API
-- 支持多种输出格式（Word、HTML、Excel）
-- 支持邮件发送功能
+1. 📊 打开并填写 `search_config.xlsx`（在本项目中下载）
+2. 📝 在"配置模板"工作表：填写：API_KEY、搜索关键词等
+
+#### 🔥 搜索 API 介绍
+
+由于Google搜索服务需要调用API接口，需要先申请 API KEY。
+介绍两种方法，推荐使用 SERP API Key，能够提供Google搜索服务，流程最简单。
+
+
+| 特性 | 🔥 SERP API（推荐） | 🔧 Google Custom Search API |
+|------|---------------------|------------------------------|
+| **申请流程** | ⭐ 非常简单 | ⭐⭐⭐ 稍复杂 |
+| **免费额度** | 2500次/月 | 100次/天 |
+| **搜索结果限制** | 无限制 | 每关键词最多100个 |
+| **配置参数** | 只需API Key | 需要API Key + 搜索引擎ID |
+| **对抗反爬虫** | 中等 | 官方接口不存在反爬虫限制 |
+
+#### 方案 1：🔥 SERP API（推荐）
+
+<details>
+<summary>📋 点击查看 SERP API 申请步骤</summary>
+
+1. 🌐 访问 [SerpApi官网](https://serpapi.com/) 注册账号
+2. 🔑 登录后进入 [Dashboard](https://serpapi.com/manage-api-key)
+3. 📋 复制 API Key
+4. ⚙️ 在 search_config.xlsx 中"搜索接口"选择 `serp_api`
+5. 💾 在 search_config.xlsx 中"API密钥"填入刚才获取的 API KEY
+
+</details>
+
+#### 方案 2： 🔧 Google 官方 API（备选）
+
+<details>
+<summary>📋 点击查看 Google Custom Search API 申请步骤</summary>
+
+1. 📖 **详细教程**: [Google Custom Search API 配置指南](https://yb.tencent.com/s/Rbc5eDI2GCTH)
+2. 🔧 按照教程获取 `API_KEY` 和 `GOOGLE_SEARCH_ENGINE_ID`
+3. 📝 在 Excel 配置文件中填入相应的值
+
+</details>
+
+
+---
+
+### ✨ 第5️⃣步：双击运行py脚本
+
+#### 🎯 方法一：双击运行（推荐）
+
+1. 📁 找到 `sales_prospector_translator.py` 文件
+2. 🖱️ 双击该文件即可运行程序
+3. ⚙️ 程序会自动读取 `search_config.xlsx` 中的配置（如果没有会自动创建）
+
+> 🚀 **最简单的方式**：双击即可运行，无需命令行操作
+
+#### 🔧 方法二：在VS CODE 或者 Cursor 中运行（适合开发者）
+
+
+```bash
+在代码编辑器中运行
+```
+
+#### 🎬 程序运行流程
+
+1. 🔍 **搜索阶段** - 搜索指定关键词的相关网站
+2. 📄 **提取阶段** - 提取每个网站的标题、摘要和正文内容
+3. 🤖 **翻译阶段** - 使用AI翻译所有内容（如果启用）
+4. 📊 **生成阶段** - 生成Word、HTML、Excel格式的报告
+5. 📧 **发送阶段** - 发送邮件报告（如果启用）
+
+---
+
+### ✨ 第6️⃣步：查看运行结果
+
+程序运行完成后，会在当前目录生成以下文件：
+
+- `{搜索关键词}_{时间戳}.docx` - **Word格式报告**，包含超链接，适合阅读和打印
+- `{搜索关键词}_{时间戳}.html` - **HTML格式报告**，适合在浏览器中查看
+- `{搜索关键词}_{时间戳}.xlsx` - **Excel格式报告**，适合数据分析和处理
+
+**文件命名示例：**
+- 搜索关键词：`"importador argentino de máquinas de café"`
+- 生成文件：`importador_argentino_de_máquinas_de_café_20250117_1430.xlsx`
+
+---
+
+
+### ✨ 第7️⃣步：配置翻译API（可选）
+
+
+如果您需要翻译功能，需要配置智谱翻译API：
+
+1. 访问 [智谱AI开放平台](https://open.bigmodel.cn/) 注册账号
+2. 获取API密钥
+3. 在 Excel 的"配置模板"工作表中填写 `translation_api_key` 并将"是否启用翻译"设为 True。
+
+> ⚠️ **注意**: 如果不配置API密钥，程序将跳过翻译步骤，只进行搜索和内容提取。
+
+
+---
+
+### ✨ 第8️⃣步：配置邮件发送（可选）
+
+如果您需要邮件发送功能，需要配置QQ邮箱：
+
+1. 获取授权码（不是邮箱密码）
+   - 详细教程：[QQ邮箱获取授权码教程](https://service.mail.qq.com/detail/0/75)
+   - 其他主流邮箱如Gmail，Outlook均支持通过授权码发送邮件（具体请询问AI）
+3. 在 Excel 的“配置模板”工作表里填写 `sender_email`、`sender_auth_code`、`recipient_email`，并将“是否启用邮件”设为 True。
+
+**注意：** 如果不配置邮箱，程序将跳过邮件发送步骤。
+
+---
 
 ## 许可证
 
 本项目采用MIT许可证。
+
+---
 
 ## 贡献
 
@@ -373,6 +212,8 @@ pip install beautifulsoup4
 3. 提交您的修改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开一个 Pull Request
+
+---
 
 ## 联系方式
 
