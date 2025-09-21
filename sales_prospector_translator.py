@@ -1571,8 +1571,8 @@ def extract_single_article(task_data):
     
     def extract_worker():
         try:
-            title, text, description = extract_article_title_and_text(url, google_title, google_description)
-            result_container[0] = (url, title, text, description)
+            title, text, description, publish_date = extract_article_title_and_text(url, google_title, google_description)
+            result_container[0] = (url, title, text, description, publish_date)
         except Exception as e:
             exception_container[0] = e
     
@@ -1602,7 +1602,7 @@ def extract_content_phase(search_results, total_target_count=None):
         total_target_count: 用户指定的总搜索数量，用于显示进度
     
     Returns:
-        list: 提取结果列表，格式为 [(url, title, text, description), ...]
+        list: 提取结果列表，格式为 [(url, title, text, description, publish_date), ...]
     """
     global interrupted, current_extracted_results, global_webpage_counter
     
@@ -1653,11 +1653,17 @@ def extract_content_phase(search_results, total_target_count=None):
                     print(f"✓ 第 {task[0]} 个网页提取完成 ({completed_count}/{total_count})")
                 
                 # 立即显示该网页的详细信息
-                url, title, text, description = result
+                if len(result) == 5:  # 包含发布时间
+                    url, title, text, description, publish_date = result
+                else:  # 向后兼容
+                    url, title, text, description = result
+                    publish_date = ""
                 print(f"\n=== 第 {task[0]} 个搜索结果 ===")
                 print(f"URL: {url}")
                 print(f"最终标题: {title}")
                 print(f"最终摘要: {description}")
+                if publish_date:
+                    print(f"发布时间: {publish_date}")
                 print(f"正文内容（智能截取500字）：")
                 if text:
                     # 截取前500个字符
@@ -1699,7 +1705,11 @@ def extract_content_phase(search_results, total_target_count=None):
 
 def translate_single_result(result_data):
     # 翻译单个搜索结果（用于并发执行）
-    i, url, title, text, description = result_data
+    if len(result_data) == 6:  # 包含发布时间
+        i, url, title, text, description, publish_date = result_data
+    else:  # 向后兼容
+        i, url, title, text, description = result_data
+        publish_date = ""
     
     print(f"\n--- 翻译第 {i} 个结果 ---")
     print(f"URL: {url}")
@@ -1723,7 +1733,7 @@ def translate_single_result(result_data):
         translated_text = translate_text(truncated_text, "content")
     
     print(f"第 {i} 个结果翻译完成")
-    return (url, title, text, description, translated_title, translated_text, translated_description)
+    return (url, title, text, description, translated_title, translated_text, translated_description, publish_date)
 
 def batch_translate_results(results):
     # 批量翻译搜索结果（并发翻译）
@@ -1742,7 +1752,14 @@ def batch_translate_results(results):
     print(f"请求间隔: {TRANSLATION_CONFIG['request_delay']}秒")
     
     # 准备并发翻译的数据
-    translation_tasks = [(i+1, url, title, text, description) for i, (url, title, text, description) in enumerate(results)]
+    translation_tasks = []
+    for i, result in enumerate(results):
+        if len(result) == 5:  # 包含发布时间
+            url, title, text, description, publish_date = result
+            translation_tasks.append((i+1, url, title, text, description, publish_date))
+        else:  # 向后兼容
+            url, title, text, description = result
+            translation_tasks.append((i+1, url, title, text, description))
     
     translated_results = []
     
@@ -1765,8 +1782,12 @@ def batch_translate_results(results):
                 print(f"翻译任务失败: {e}")
                 # 如果翻译失败，添加原始数据
                 original_task = future_to_result[future]
-                translated_results.append((original_task[1], original_task[2], original_task[3], original_task[4], 
-                                         original_task[2], original_task[3], original_task[4]))
+                if len(original_task) == 6:  # 包含发布时间
+                    translated_results.append((original_task[1], original_task[2], original_task[3], original_task[4],
+                                             original_task[2], original_task[3], original_task[4], original_task[5]))
+                else:  # 向后兼容
+                    translated_results.append((original_task[1], original_task[2], original_task[3], original_task[4],
+                                             original_task[2], original_task[3], original_task[4], ""))
     
     # 按原始顺序排序结果
     translated_results.sort(key=lambda x: next(i for i, task in enumerate(translation_tasks) if task[1] == x[0]))
@@ -2214,44 +2235,35 @@ def extract_with_newspaper(url):
         print(f"newspaper3k提取失败: {url}, 错误: {e}")
         return ""
 
-def extract_with_trafilatura(url):
-    # 使用trafilatura提取正文
+def extract_with_trafilatura(html_content, url=""):
+    # 使用trafilatura提取正文和元数据（包括发布时间）
     if not TRAFILATURA_AVAILABLE:
-        return ""
+        return "", ""
     
     try:
-        # 优先用requests获取页面（使用较短的网络超时，避免长时间等待）
-        network_timeout = CONTENT_EXTRACTION_CONFIG.get('network_timeout', 5)
-        try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                              'AppleWebKit/537.36 (KHTML, like Gecko) '
-                              'Chrome/124.0 Safari/537.36'
-            }
-            resp = requests.get(url, timeout=network_timeout, headers=headers)
-            if resp.ok and resp.text:
-                content = trafilatura.extract(resp.text, url=url)
-                return content or ""
-        except Exception:
-            # 忽略requests失败，直接返回空内容，避免使用无超时控制的trafilatura.fetch_url
-            return ""
-
-        # 注释掉无超时控制的回退方案，避免长时间等待
-        # downloaded = trafilatura.fetch_url(url)  # 这个函数没有超时控制，可能等待很久
-        # if downloaded:
-        #     content = trafilatura.extract(downloaded, url=url)
-        #     return content or ""
-        return ""
+        if html_content:
+            # 从已下载的HTML内容中提取正文
+            content = trafilatura.extract(html_content, url=url)
+            
+            # 提取元数据，包括发布时间
+            metadata = trafilatura.extract_metadata(html_content)
+            publish_date = ""
+            if metadata and hasattr(metadata, 'date'):
+                publish_date = metadata.date
+            
+            return content or "", publish_date or ""
+        else:
+            return "", ""
     except Exception as e:
         print(f"trafilatura提取失败: {url}, 错误: {e}")
-        return ""
+        return "", ""
 
 
 
 def extract_article_content_complete(url, page_idx: int = None, total_pages: int = None):
     """
-    统一提取网页标题、描述和正文 - 优化版（一次下载，多种解析方法）
-    返回: (title, content, description)
+    统一提取网页标题、描述、正文和发布时间 - 优化版（一次下载，多种解析方法）
+    返回: (title, content, description, publish_date)
     """
     import time
     from urllib.parse import urlparse
@@ -2278,13 +2290,13 @@ def extract_article_content_complete(url, page_idx: int = None, total_pages: int
         
         html_content = response.text
         if not html_content:
-            return "", "", ""
+            return "", "", "", ""
         
         # 智能编码检测：优先使用响应头编码，仅在必要时使用chardet检测
         html_content = smart_encoding_detection(html_content, response)
             
     except Exception as e:
-        return "", "", ""
+        return "", "", "", ""
     
     # 第二步：从HTML中提取标题和描述
     title = ""
@@ -2318,7 +2330,17 @@ def extract_article_content_complete(url, page_idx: int = None, total_pages: int
     except Exception as e:
         pass
     
-    # 第三步：用不同方法解析同一份HTML内容提取正文
+    # 第三步：提取发布时间
+    publish_date = ""
+    try:
+        if TRAFILATURA_AVAILABLE:
+            metadata = trafilatura.extract_metadata(html_content)
+            if metadata and hasattr(metadata, 'date') and metadata.date:
+                publish_date = metadata.date
+    except Exception as e:
+        pass
+    
+    # 第四步：用不同方法解析同一份HTML内容提取正文
     best_content = ""
     best_method = ""
     best_length = 0
@@ -2353,12 +2375,12 @@ def extract_article_content_complete(url, page_idx: int = None, total_pages: int
     except Exception as e:
         pass
     
-    # 返回标题、正文、描述
-    return title, best_content, description
+    # 返回标题、正文、描述、发布时间
+    return title, best_content, description, publish_date
 
 def extract_article_text_robust(url, page_idx: int = None, total_pages: int = None):
     # 多库组合提取正文 - 优化版（一次下载，多种解析方法）
-    _, content, _ = extract_article_content_complete(url, page_idx, total_pages)
+    _, content, _, _ = extract_article_content_complete(url, page_idx, total_pages)
     return content
 
 def extract_article_text(url, page_idx: int = None, total_pages: int = None):
@@ -2395,12 +2417,12 @@ def truncate_text_smart(text, max_chars=500):
 
 def extract_article_title_and_text(url, google_title="", google_description=""):
     """
-    提取网页标题、description和正文（使用多库组合），不进行翻译
+    提取网页标题、description、正文和发布时间（使用多库组合），不进行翻译
     优化版：只进行一次网络请求
     """
     try:
-        # 使用统一函数一次性提取标题、正文和描述
-        html_title, text, html_description = extract_article_content_complete(url)
+        # 使用统一函数一次性提取标题、正文、描述和发布时间
+        html_title, text, html_description, publish_date = extract_article_content_complete(url)
         
         # 确定最终使用的标题
         title = html_title if html_title else google_title
@@ -2411,10 +2433,10 @@ def extract_article_title_and_text(url, google_title="", google_description=""):
         # 确定最终使用的description（优先级：HTML > Google）
         final_description = html_description if html_description else google_description
         
-        return title, text, final_description
+        return title, text, final_description, publish_date
     except Exception as e:
         print(f"提取失败: {url}, 错误: {e}")
-        return "", "", ""
+        return "", "", "", ""
 
 def save_results_to_pdf(results, filename="results.pdf"):
     """
@@ -2499,16 +2521,24 @@ def save_results_to_docx(results, filename="results.docx", keywords_list=None, l
         doc.add_paragraph(f"搜索结果数量: {actual_count} 个")
 
     for i, result in enumerate(results, 1):
-        # 解包结果，支持翻译内容
-        if len(result) == 7:  # 包含翻译内容
+        # 解包结果，支持翻译内容和发布时间
+        if len(result) == 8:  # 包含翻译内容和发布时间
+            url, title, text, description, translated_title, translated_text, translated_description, publish_date = result
+        elif len(result) == 7:  # 包含翻译内容，但不包含发布时间（向后兼容）
             url, title, text, description, translated_title, translated_text, translated_description = result
-        elif len(result) == 4:  # 不包含翻译内容（向后兼容）
+            publish_date = ""
+        elif len(result) == 5:  # 包含发布时间，但不包含翻译内容
+            url, title, text, description, publish_date = result
+            translated_title, translated_text, translated_description = title, text, description
+        elif len(result) == 4:  # 不包含翻译内容和发布时间（向后兼容）
             url, title, text, description = result
             translated_title, translated_text, translated_description = title, text, description
+            publish_date = ""
         elif len(result) == 3:  # 只有基本搜索结果（URL, title, description）
             url, title, description = result
             text = ""
             translated_title, translated_text, translated_description = title, text, description
+            publish_date = ""
         else:
             print(f"警告: 结果格式不正确，包含 {len(result)} 个元素: {result}")
             continue
@@ -2530,6 +2560,10 @@ def save_results_to_docx(results, filename="results.docx", keywords_list=None, l
         # 添加公司网址信息
         domain = extract_domain(url)
         doc.add_paragraph(f"公司网址: {domain}")
+        
+        # 添加发布时间信息（如果有的话）
+        if publish_date:
+            doc.add_paragraph(f"发布时间: {publish_date}")
         
         # 添加网站摘要信息
         if description:
@@ -2681,6 +2715,17 @@ def save_results_to_html(results, filename="results.html", keywords_list=None, l
             margin-left: 8px;
         }}
         
+        .publish-date {{
+            display: inline-block;
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }}
+        
         .result-content {{
             margin-top: 12px;
             font-size: 14px;
@@ -2731,16 +2776,24 @@ def save_results_to_html(results, filename="results.html", keywords_list=None, l
 """
 
     for i, result in enumerate(results, 1):
-        # 解包结果，支持翻译内容
-        if len(result) == 7:  # 包含翻译内容
+        # 解包结果，支持翻译内容和发布时间
+        if len(result) == 8:  # 包含翻译内容和发布时间
+            url, title, text, description, translated_title, translated_text, translated_description, publish_date = result
+        elif len(result) == 7:  # 包含翻译内容，但不包含发布时间（向后兼容）
             url, title, text, description, translated_title, translated_text, translated_description = result
-        elif len(result) == 4:  # 不包含翻译内容（向后兼容）
+            publish_date = ""
+        elif len(result) == 5:  # 包含发布时间，但不包含翻译内容
+            url, title, text, description, publish_date = result
+            translated_title, translated_text, translated_description = title, text, description
+        elif len(result) == 4:  # 不包含翻译内容和发布时间（向后兼容）
             url, title, text, description = result
             translated_title, translated_text, translated_description = title, text, description
+            publish_date = ""
         elif len(result) == 3:  # 只有基本搜索结果（URL, title, description）
             url, title, description = result
             text = ""
             translated_title, translated_text, translated_description = title, text, description
+            publish_date = ""
         else:
             print(f"警告: 结果格式不正确，包含 {len(result)} 个元素: {result}")
             continue
@@ -2756,6 +2809,7 @@ def save_results_to_html(results, filename="results.html", keywords_list=None, l
         <div class="result-url">
             <a href="{url}" target="_blank">{url}</a>
             <span class="domain-badge">{domain}</span>
+            {f'<span class="publish-date">发布时间: {publish_date}</span>' if publish_date else ''}
         </div>
         {f'<div class="result-content"><p><strong>摘要:</strong> {description}</p></div>' if description else ''}
         {f'<div class="result-content"><p>{translated_description}</p></div>' if TRANSLATION_CONFIG['enable_translation'] and translated_description != description and translated_description else ''}
@@ -2792,16 +2846,24 @@ def save_results_to_excel(results, filename="results.xlsx", search_keyword=None,
     data = []
     
     for i, result in enumerate(results, 1):
-        # 解包结果，支持翻译内容
-        if len(result) == 7:  # 包含翻译内容
+        # 解包结果，支持翻译内容和发布时间
+        if len(result) == 8:  # 包含翻译内容和发布时间
+            url, title, text, description, translated_title, translated_text, translated_description, publish_date = result
+        elif len(result) == 7:  # 包含翻译内容，但不包含发布时间（向后兼容）
             url, title, text, description, translated_title, translated_text, translated_description = result
-        elif len(result) == 4:  # 不包含翻译内容（向后兼容）
+            publish_date = ""
+        elif len(result) == 5:  # 包含发布时间，但不包含翻译内容
+            url, title, text, description, publish_date = result
+            translated_title, translated_text, translated_description = title, text, description
+        elif len(result) == 4:  # 不包含翻译内容和发布时间（向后兼容）
             url, title, text, description = result
             translated_title, translated_text, translated_description = title, text, description
+            publish_date = ""
         elif len(result) == 3:  # 只有基本搜索结果（URL, title, description）
             url, title, description = result
             text = ""
             translated_title, translated_text, translated_description = title, text, description
+            publish_date = ""
         else:
             print(f"警告: 结果格式不正确，包含 {len(result)} 个元素: {result}")
             continue
@@ -2858,6 +2920,7 @@ def save_results_to_excel(results, filename="results.xlsx", search_keyword=None,
             '翻译标题': translated_title if TRANSLATION_CONFIG['enable_translation'] and translated_title != title else "",
             '网页URL': url,
             '公司网址': domain,
+            '发布时间': publish_date,
             '原始摘要': description,
             '翻译摘要': translated_description if TRANSLATION_CONFIG['enable_translation'] and translated_description != description else "",
             '原始正文': truncated_text,
