@@ -232,7 +232,6 @@ def _req(q, results, start, proxies, timeout, safe, ssl_verify, gl, hl=None, cr=
     # 构建参数字典 - 所有参数都始终存在，None表示Google默认设置
     params = {
         "q": q,
-        "num": results + 2,  # Prevents multiple requests
         "hl": hl,
         "start": start,
         "safe": safe,
@@ -240,6 +239,9 @@ def _req(q, results, start, proxies, timeout, safe, ssl_verify, gl, hl=None, cr=
         "cr": cr,
         "lr": lr,
     }
+    
+    # 删除值为None的项
+    params = {k: v for k, v in params.items() if v is not None}
     
     # 打印构建的URL（忠实显示所有参数）
     from urllib.parse import urlencode
@@ -298,6 +300,7 @@ def search(q, num_results=10, hl=None, proxy=None, advanced=False, sleep_interva
         # Parse
         soup = BeautifulSoup(resp.text, "html.parser")
         result_block = soup.find_all("div", class_="ezO2md")
+        print(f"找到 {len(result_block)} 个 ezO2md 元素")
         new_results = 0  # Keep track of new results in this iteration
 
         for result in result_block:
@@ -308,12 +311,12 @@ def search(q, num_results=10, hl=None, proxy=None, advanced=False, sleep_interva
             # Find the description tag within the result block
             description_tag = result.find("span", class_="FrIlee")
 
-            # Check if all necessary tags are found
-            if link_tag and title_tag and description_tag:
-                # Extract and decode the link URL
-                link = unquote(link_tag["href"].split("&")[0].replace("/url?q=", "")) if link_tag else ""
             # Extract and decode the link URL
             link = unquote(link_tag["href"].split("&")[0].replace("/url?q=", "")) if link_tag else ""
+            
+            # Check if all necessary tags are found
+            if link_tag and title_tag and description_tag:
+                print(f"    第{fetched_results+1}个链接: {link}，找到 {len(link_tag)} 个 link_tag 元素，")
             
             # 过滤无效链接：以/search?开头的无效搜索链接
             if link.startswith("/search?"):
@@ -328,10 +331,14 @@ def search(q, num_results=10, hl=None, proxy=None, advanced=False, sleep_interva
             title = title_tag.text if title_tag else ""
             # Extract the description text
             description = description_tag.text if description_tag else ""
-            # Increment the count of fetched results
-            fetched_results += 1
-            # Increment the count of new results in this iteration
-            new_results += 1
+
+            if link and title:
+                # Increment the count of fetched results
+                fetched_results += 1
+                # Increment the count of new results in this iteration
+                new_results += 1
+
+
             # Yield the result based on the advanced flag
             if advanced:
                 yield SearchResult(link, title, description)  # Yield a SearchResult object
@@ -339,11 +346,17 @@ def search(q, num_results=10, hl=None, proxy=None, advanced=False, sleep_interva
                 yield link  # Yield only the link
 
             if fetched_results >= num_results:
+                print(f"\n{'='*50}")  
+                print(f"  已经达到本次搜索目标数量，停止搜索")
+                print(f"{'='*50}")
                 break  # Stop if we have fetched the desired number of results
 
         if new_results == 0:
             #If you want to have printed to your screen that the desired amount of queries can not been fulfilled, uncomment the line below:
             #print(f"Only {fetched_results} results found for query requiring {num_results} results. Moving on to the next query.")
+            print(f"\n{'='*50}")  
+            print(f"  已无更多搜索结果，停止搜索，本次搜索共找到 {fetched_results} 个结果")
+            print(f"{'='*50}")
             break  # Break the loop if no new results were found in this iteration
 
         start += 10  # Prepare for the next set of results
@@ -352,6 +365,7 @@ def search(q, num_results=10, hl=None, proxy=None, advanced=False, sleep_interva
         min_interval = max(0, sleep_interval - 2)  # 最小值不能为负数
         max_interval = sleep_interval + 2
         sleep_interval = random.uniform(min_interval, max_interval)
+        print(f"  避免被Google封禁，本次休眠 {sleep_interval:.2f}秒")
         sleep(sleep_interval)
 
 # ==================== googlesearch库代码结束 ====================
@@ -1421,9 +1435,12 @@ def save_current_results():
         print("没有数据需要保存")
         return
     
-    # 根据搜索关键词生成文件名
-    safe_filename = "".join(c for c in SEARCH_KEYWORD if c.isalnum() or c in (' ', '-', '_')).rstrip()
-    safe_filename = safe_filename.replace(' ', '_')
+    # 根据模式生成文件名：多关键词模式使用固定前缀，单关键词模式使用当前关键词
+    if ENABLE_MULTI_KEYWORDS_MODE:
+        base_filename = 'mutiple_keywords'
+    else:
+        base_filename = "".join(c for c in SEARCH_KEYWORD if c.isalnum() or c in (' ', '-', '_')).rstrip()
+        base_filename = base_filename.replace(' ', '_')
     
     # 确定要保存的结果
     results_to_save = []
@@ -1444,9 +1461,9 @@ def save_current_results():
     # 生成带时间戳的文件名（精确到分钟）
     from datetime import datetime
     timestamp = datetime.now().strftime('%Y%m%d_%H%M')
-    docx_filename = f"{safe_filename}_interrupted_{timestamp}.docx"
-    html_filename = f"{safe_filename}_interrupted_{timestamp}.html"
-    xlsx_filename = f"{safe_filename}_interrupted_{timestamp}.xlsx"
+    docx_filename = f"{base_filename}_interrupted_{timestamp}.docx"
+    html_filename = f"{base_filename}_interrupted_{timestamp}.html"
+    xlsx_filename = f"{base_filename}_interrupted_{timestamp}.xlsx"
     
     try:
         # 保存为Word文档
@@ -1593,13 +1610,14 @@ def extract_single_article(task_data):
     else:
         return result_container[0]
 
-def extract_content_phase(search_results, total_target_count=None):
+def extract_content_phase(search_results, total_target_count=None, start_index=0):
     """
     第一阶段：并发提取所有搜索结果的内容（不翻译）
     
     Args:
         search_results: 搜索结果列表，格式为 [(url, title, description), ...]
         total_target_count: 用户指定的总搜索数量，用于显示进度
+        start_index: 多关键词模式下的起始索引（用于进度显示）
     
     Returns:
         list: 提取结果列表，格式为 [(url, title, text, description, publish_date), ...]
@@ -1646,11 +1664,11 @@ def extract_content_phase(search_results, total_target_count=None):
                 # 实时更新全局变量，支持中断保存
                 current_extracted_results = results.copy()
                 
-                # 显示进度：使用全局索引和总目标数量
+                # 显示进度：统一使用全局进度
                 if total_target_count:
                     print(f"✓ 第 {task[0]} 个网页提取完成 ({task[0]}/{total_target_count})")
                 else:
-                    print(f"✓ 第 {task[0]} 个网页提取完成 ({completed_count}/{total_count})")
+                    print(f"✓ 第 {task[0]} 个网页提取完成 ({task[0]}/{total_count})")
                 
                 # 立即显示该网页的详细信息
                 if len(result) == 5:  # 包含发布时间
@@ -1674,11 +1692,11 @@ def extract_content_phase(search_results, total_target_count=None):
                 print("=" * 50)
                 
             except Exception as e:
-                # 显示失败进度：使用全局索引和总目标数量
+                # 显示失败进度：统一使用全局进度
                 if total_target_count:
                     print(f"✗ 第 {task[0]} 个网页提取失败: {e} ({task[0]}/{total_target_count})")
                 else:
-                    print(f"✗ 第 {task[0]} 个网页提取失败: {e} ({completed_count}/{total_count})")
+                    print(f"✗ 第 {task[0]} 个网页提取失败: {e} ({task[0]}/{total_count})")
                 # 即使提取失败，也添加一个空结果以保持索引一致
                 results.append((task[1], "", "", ""))
                 
@@ -1687,11 +1705,11 @@ def extract_content_phase(search_results, total_target_count=None):
             
             # 每完成10个显示一次进度
             if completed_count % 10 == 0:
-                # 显示进度：使用全局索引和总目标数量
+                # 显示进度：统一使用全局进度
                 if total_target_count:
                     print(f"📊 提取进度: {task[0]}/{total_target_count} ({task[0]/total_target_count*100:.1f}%)")
                 else:
-                    print(f"📊 提取进度: {completed_count}/{total_count} ({completed_count/total_count*100:.1f}%)")
+                    print(f"📊 提取进度: {task[0]}/{total_count} ({task[0]/total_count*100:.1f}%)")
     
     # 更新全局状态
     current_extracted_results = results
@@ -1795,7 +1813,7 @@ def batch_translate_results(results):
     print(f"\n并发翻译完成！共翻译了 {len(translated_results)} 个结果")
     return translated_results
 
-def get_google_custom_search_results(query, num_results=None, total_target_count=None):
+def get_google_custom_search_results(query, num_results=None, total_target_count=None, start_index=0):
     global current_search_results, interrupted
     # 使用 Google官方API 获取搜索结果
     if not GOOGLE_API_KEY or not GOOGLE_SEARCH_ENGINE_ID:
@@ -1849,6 +1867,8 @@ def get_google_custom_search_results(query, num_results=None, total_target_count
             for attempt in range(3):
                 try:
                     response = requests.get(api_url, params=params, timeout=30)
+                    # 一行打印返回JSON中的 error.message（如存在），然后再抛出异常
+                    print((((response.json() if 'application/json' in response.headers.get('Content-Type','').lower() else {}) or {}).get('error') or {}).get('message')) if response.status_code >= 400 else None
                     response.raise_for_status()
                     data = response.json()
                     break
@@ -1890,7 +1910,7 @@ def get_google_custom_search_results(query, num_results=None, total_target_count
             if current_page_results:
                 current_page = (start_index - 1) // results_per_page + 1
                 print(f"\n--- 开始提取第 {current_page} 页的网页内容 ---")
-                extracted_results = extract_content_phase(current_page_results, total_target_count or num_results)
+                extracted_results = extract_content_phase(current_page_results, total_target_count=total_target_count, start_index=start_index)
                 # 将提取的内容合并到最终结果中
                 for i, extracted_result in enumerate(extracted_results):
                     # 找到对应的原始结果并更新
@@ -1940,7 +1960,7 @@ def get_google_custom_search_results(query, num_results=None, total_target_count
     print(f"搜索完成，共获取 {len(results)} 个结果")
     return results
 
-def get_google_results(query, num_results=None, sleep_interval=None, total_target_count=None):
+def get_googlesearch_python_results(query, num_results=None, sleep_interval=None, total_target_count=None, start_index=0):
     """
     获取 Google 搜索结果前 num_results 个结果（包含URL、标题和摘要）
     使用googlesearch-python库，支持随机请求间隔控制（配置值±2秒范围内随机）
@@ -1977,6 +1997,14 @@ def get_google_results(query, num_results=None, sleep_interval=None, total_targe
         sleep_interval = OTHER_CONFIG.get('sleep_interval', 1)
         print(f"使用配置的请求间隔: {sleep_interval}秒 (将在search函数内部随机化)")
     
+    # 处理排除关键词 - 将排除关键词转换为Google搜索语法
+    search_query = query
+    if EXCLUDE_TERMS:
+        exclude_list = EXCLUDE_TERMS.split()
+        exclude_terms = " ".join([f"-{term}" for term in exclude_list])
+        search_query = f"{query} {exclude_terms}"
+        print(f"应用排除关键词: {exclude_terms}")
+    
     results = []
     try:
         # 打印搜索国家
@@ -1986,7 +2014,7 @@ def get_google_results(query, num_results=None, sleep_interval=None, total_targe
         
         # 简化的搜索参数构建 - 所有参数都始终存在，None表示Google默认设置
         search_kwargs = {
-            'q': query,
+            'q': search_query,  # 使用处理后的搜索查询（包含排除关键词）
             'num_results': num_results,
             'sleep_interval': sleep_interval,
             'advanced': True,
@@ -2011,7 +2039,7 @@ def get_google_results(query, num_results=None, sleep_interval=None, total_targe
             if len(current_batch) >= batch_size or len(results) >= num_results:
                 batch_count += 1
                 print(f"\n--- 开始提取第 {batch_count} 批的网页内容 ---")
-                extracted_results = extract_content_phase(current_batch, num_results)
+                extracted_results = extract_content_phase(current_batch, total_target_count=total_target_count, start_index=start_index)
                 
                 # 将提取的内容合并到最终结果中
                 for extracted_result in extracted_results:
@@ -2038,7 +2066,7 @@ def get_google_results(query, num_results=None, sleep_interval=None, total_targe
         if current_batch:
             batch_count += 1
             print(f"\n--- 开始提取第 {batch_count} 批的网页内容 ---")
-            extracted_results = extract_content_phase(current_batch, num_results)
+            extracted_results = extract_content_phase(current_batch, total_target_count=total_target_count, start_index=start_index)
             
             # 将提取的内容合并到最终结果中
             for extracted_result in extracted_results:
@@ -2059,7 +2087,7 @@ def get_google_results(query, num_results=None, sleep_interval=None, total_targe
     
     return results
 
-def get_serp_api_results(query, num_results=None):
+def get_serp_api_results(query, num_results=None, total_target_count=None, start_index=0):
     global current_search_results, interrupted
     # 使用 Serp API 获取搜索结果
     if not SERPAPI_AVAILABLE:
@@ -2159,7 +2187,7 @@ def get_serp_api_results(query, num_results=None):
             if current_page_results:
                 current_page = start_index // results_per_page + 1
                 print(f"\n--- 开始提取第 {current_page} 页的网页内容 ---")
-                extracted_results = extract_content_phase(current_page_results, num_results)
+                extracted_results = extract_content_phase(current_page_results, total_target_count=total_target_count, start_index=start_index)
                 # 将提取的内容合并到最终结果中
                 for i, extracted_result in enumerate(extracted_results):
                     # 找到对应的原始结果并更新
@@ -2204,14 +2232,14 @@ def get_serp_api_results(query, num_results=None):
     print(f"搜索完成，共获取 {len(results)} 个结果")
     return results
 
-def get_search_results(query, num_results=None, total_target_count=None):
+def get_search_results(query, num_results=None, total_target_count=None, start_index=0):
     # 根据配置选择搜索方法
     if SEARCH_METHOD == 'google_api':
-        return get_google_custom_search_results(query, num_results, total_target_count)
+        return get_google_custom_search_results(query, num_results, total_target_count, start_index)
     elif SEARCH_METHOD == 'serp_api':
-        return get_serp_api_results(query, num_results, total_target_count)
+        return get_serp_api_results(query, num_results, total_target_count, start_index)
     else:
-        return get_google_results(query, num_results, total_target_count)
+        return get_googlesearch_python_results(query, num_results, total_target_count=total_target_count, start_index=start_index)
 
 def extract_with_newspaper(url):
     # 使用newspaper3k提取正文，通过requests控制超时
@@ -3036,19 +3064,20 @@ def load_multi_keywords_tasks(filename: str = "search_config.xlsx"):
         })
     return tasks
 
-def process_one_query(query: str, total_target_count=None):
+def process_one_query(query: str, total_target_count=None, start_index=0):
     """
     处理单个查询的完整流程：搜索→并发提取→批量翻译。
     返回 translated_results 列表。
     
     Args:
         query: 搜索关键词
-        total_target_count: 多关键词模式下的总目标数量
+        total_target_count: 多关键词模式下的总目标数量（仅用于进度显示）
+        start_index: 多关键词模式下的起始索引（用于进度显示）
     """
     global current_search_results, current_extracted_results, current_translated_results, interrupted
 
-    # 使用新的边搜索边提取逻辑
-    search_results = get_search_results(query, total_target_count=total_target_count)
+    # 使用新的边搜索边提取逻辑，每个查询使用自己的num_results
+    search_results = get_search_results(query, num_results=SEARCH_CONFIG['num_results'], total_target_count=total_target_count, start_index=start_index)
     current_search_results = search_results
     if not search_results:
         return []
@@ -3217,6 +3246,7 @@ def main():
             per_row_countries = []
             per_row_languages = []
             seen_urls = set()  # 用于URL去重的集合
+            processed_count = 0  # 已处理的结果数量
             for idx, t in enumerate(tasks, 1):
                 print(f"\n==== 执行第 {idx} 个任务: {t['keyword']} ====")
                 # 临时覆盖搜索配置
@@ -3235,7 +3265,7 @@ def main():
                     if t['exclude']:
                         globals()['EXCLUDE_TERMS'] = t['exclude']
 
-                    tr = process_one_query(t['keyword'], total_target_count=total_target_count)
+                    tr = process_one_query(t['keyword'], total_target_count=total_target_count, start_index=processed_count)
                     
                     # URL去重：只添加未处理过的URL
                     new_results = []
@@ -3257,6 +3287,8 @@ def main():
                     per_row_languages.extend([current_language] * len(new_results))
                     
                     print(f"  本次获取 {len(tr)} 个结果，去重后新增 {len(new_results)} 个结果")
+                    # 更新已处理的结果数量
+                    processed_count += len(new_results)
                 finally:
                     # 还原配置
                     SEARCH_CONFIG['num_results'] = original_num
@@ -3271,7 +3303,8 @@ def main():
             if aggregated_results:
                 from datetime import datetime
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M')
-                base = 'mutiple_keywords'
+                actual_count = len(aggregated_results)
+                base = f'mutiple_keywords_{actual_count}个搜索结果'
                 docx_filename = f"{base}_{timestamp}.docx"
                 html_filename = f"{base}_{timestamp}.html"
                 xlsx_filename = f"{base}_{timestamp}.xlsx"
@@ -3312,7 +3345,9 @@ def main():
     else:
         print("使用 googlesearch-python 库进行搜索")
     
-    search_results = get_search_results(query)
+    # 在单关键词模式下，total_target_count 就是用户配置的目标数量
+    total_target_count = SEARCH_CONFIG['num_results']
+    search_results = get_search_results(query, num_results=total_target_count, total_target_count=total_target_count)
     
     # 更新全局状态
     global current_search_results
@@ -3355,6 +3390,9 @@ def main():
     # 根据搜索关键词生成文件名
     safe_filename = "".join(c for c in SEARCH_KEYWORD if c.isalnum() or c in (' ', '-', '_')).rstrip()
     safe_filename = safe_filename.replace(' ', '_')
+    # 添加搜索结果数量信息
+    actual_count = len(translated_results)
+    safe_filename = f"{safe_filename}_{actual_count}个搜索结果"
     # 为最终输出文件名添加时间戳（精确到分钟）
     from datetime import datetime
     timestamp = datetime.now().strftime('%Y%m%d_%H%M')
